@@ -1,0 +1,7 @@
+{
+    "unit_number": "unit_id",
+    "changeset": {
+        "change": "payment_method",
+        "method": "recurring_monthly / recurring_yearly / pre_pay"
+    }
+}

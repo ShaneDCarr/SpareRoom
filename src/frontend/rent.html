@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SpareRoom | Rent</title>
+        <link rel="stylesheet" href="styles.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="logo" style="cursor:pointer"><a href="home.html">SpareRoom</a></div>
+            <nav>
+                <div class="hamburger" onclick="toggleMenu()">
+                    &#9776;
+                </div>
+                <ul id="menu" class="menu">
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="rent.html">Rent</a></li>
+                    <li><a href="client_units.html">Units</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a id="logout-link" href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <h1>Rent a Storage Unit</h1>
+            <form id="rent-form">
+                <label for="facility">Select a Facility:</label>
+                <select id="facility" name="facility" required>
+                    <option value="" disabled selected>Select a location</option>
+                    <option value="Eastern Cape">Eastern Cape</option>
+                    <option value="Free State">Free State</option>
+                    <option value="Gauteng">Gauteng</option>
+                    <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+                    <option value="Limpopo">Limpopo</option>
+                    <option value="Mpumalanga">Mpumalanga</option>
+                    <option value="Northern Cape">Northern Cape</option>
+                    <option value="North West">North West</option>
+                    <option value="Western Cape">Western Cape</option>
+                </select>
+
+                <label for="unit-size">Select Unit Size:</label>
+                <select id="unit-size" name="unit-size" required>
+                    <option value="" disabled selected>Select a size</option>
+                    <option value="Locker">Locker</option>
+                    <option value="Small">Small Unit</option>
+                    <option value="Medium">Medium Unit</option>
+                    <option value="Large">Large Unit</option>
+                </select>
+
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start-date" name="start-date" required>
+
+                <label for="end-date">End Date:</label>
+                <input type="date" id="end-date" name="end-date" required>
+
+                <div class="indefinite-option">
+                    <input type="checkbox" id="indefinite-end-date" name="indefinite-end-date">
+                    <label for="indefinite-end-date">Rent Indefinitely?</label>
+                </div>
+
+                <label for="billing-option">Billing Option:</label>
+                <select id="billing-option" name="billing-option" required>
+                    <option value="" disabled selected>Select billing option</option>
+                    <option value="prepaid">Prepaid</option>
+                    <option value="monthly">Recurring Monthly</option>
+                    <option value="yearly">Recurring Yearly</option>
+                </select>
+                <small id="billing-warning" class="hidden">Prepaid billing is not available for indefinite rentals.</small>
+
+                <label for="payment-type">Payment Type:</label>
+                <select id="payment-type" name="payment-type" required>
+                    <option value="" disabled selected>Select payment type</option>
+                    <option value="card">Card (Credit/Debit)</option>
+                    <option value="eft">EFT</option>
+                </select>
+
+                <div class="actions">
+                    <button type="button" id="cancel" class="btn-secondary">Cancel</button>
+                    <button type="reset" id="clear" class="btn-secondary">Clear</button>
+                    <button type="submit" id="book" class="btn-primary">Rent Now</button>
+                </div>
+            </form>
+            
+            <div id="availableUnitsModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Available Units</h2>
+                    <div id="available-units-container">
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script>
+            
+        </script>
+        <script src="rent_script.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

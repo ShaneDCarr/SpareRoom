@@ -1,0 +1,23 @@
+{
+    "call": "state",
+    "state": "Available / Reserved / Cancelling / Problem / Unavailable",
+    "units": [
+        {
+            "client_id": "client_id / none"
+            "unit_id": "unit-id",
+            "location": "Western Cape",
+            "size": "Locker / Small / Medium, / Large",
+            "accumulated_price": 0,
+            "monthly_price": 0,
+            "end_date": "01/02/2001 / indefinite",
+            "shared": {
+                "shared_with": [
+                    "email"
+                ]
+            },
+            "open" : "false / true",
+            "billing_option": "Recurring (Monthly/Yearly) / Pre-Pay"
+
+        }
+    ]
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SpareRoom | My Units</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="load.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    </head>
+    <div class="loading-screen" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    <body>
+        <header>
+            <div class="logo" style="cursor:pointer"><a href="home.html">SpareRoom</a></div>
+            <nav>
+                <div class="hamburger" onclick="toggleMenu()">
+                    &#9776;
+                </div>
+                <ul id="menu" class="menu">
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="rent.html">Rent</a></li>
+                    <li><a href="client_units.html">Units</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a id="logout-link" href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="details-container">
+            <button class="btn-secondary" id="back-button" onclick="goBack()">←</button>
+
+            <main class="unit-details">
+                <section id="unit-details">
+                    <h1>Unit Details</h1>
+                    <div id="unit-info"></div>
+                </section>
+                <aside id="unit-options">
+                    <ul>
+                        <li><button class="btn-link" onclick="shareAccess()">Share Access</button></li>
+                        <li><button class="btn-link" onclick="stopSharing()">Stop Sharing</button></li>
+                        <li><button class="btn-link" onclick="extendRental()">Extend Rental</button></li>
+                        <li><button class="btn-link" onclick="stopRental()">Stop Renting</button></li>
+                        <li><button class="btn-link" onclick="loadNotifications()">Notifications</button></li>
+                        <li><button class="btn-link" onclick="checkPayments()">Change Payment</button></li>
+                    </ul>
+                </aside>
+            </main>
+
+            <div id="shareAccessModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Share Access</h2>
+                    <form id="shareAccessForm">
+                        <label for="email">Who would you like to share with?</label>
+                        <input type="email" id="email" placeholder="Enter email" required>
+                        <button type="submit" class="btn-secondary">Share</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="extendRentalModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Extend Rental</h2>
+                    <form id="extendRentalForm">
+                        <label for="end-date">Until when would you like to extend your rental?</label>
+                        <input type="date" id="end-date" required>
+                        <button type="submit" class="btn-secondary">Extend</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="indefinitePopup" class="modal">
+                <div class="modal-content">
+                    <p>This unit is booked indefinitely. You cannot extend the rental period.</p>
+                    <button id="btn-okay" class="btn-primary">OK</button>
+                </div>
+            </div>
+
+            <div id="stopRentalModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Stop Renting</h2>
+                    <p>Are you sure you want to stop renting this unit?</p>
+                    <button id="btn-no" class="btn-secondary">No</button>
+                    <button id="btn-okay" class="btn-primary">Yes</button>
+                </div>
+            </div>
+
+            <div id="stopShareModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Stop Sharing</h2>
+                    <form id="stopShareForm">
+                        <div id="userCheckboxList"></div>
+                        <button type="button" class="btn-primary" id="submitStopShare">Stop Sharing</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="changePaymentModal" class="modal">
+                <div class="modal-content">
+                    <span class="btn-close">&times;</span>
+                    <h2>Change Payment Type</h2>
+                    <form id="changePaymentForm">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" class="paymentType" name="paymentType" value="card" id="cardPayment" />
+                                Card
+                            </label>
+                            <label>
+                                <input type="radio" class="paymentType" name="paymentType" value="eft" id="eftPayment" />
+                                EFT
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+        <script src="details.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

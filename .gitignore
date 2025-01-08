@@ -1,0 +1,11 @@
+
+
+# pycache 
+**/__pycache__/
+
+
+# environment
+env/
+
+# layers
+src/layers/python/**

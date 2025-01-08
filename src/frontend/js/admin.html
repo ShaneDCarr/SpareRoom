@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <link rel="stylesheet" href="/src/frontend/admin_styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-section">
+        <h2>Manage Storage Units</h2>
+
+        <!-- Filters for status and location -->
+        <div class="search-container">
+            <label for="status">Status:</label>
+            <input type="text" id="status" placeholder="Search by status" onkeyup="filterTable()">
+            <label for="location">Location:</label>
+            <input type="text" id="location" placeholder="Search by location" onkeyup="filterTable()">
+        </div>
+
+        <!-- Storage Units table -->
+        <table id="units-table" class="units-table">
+            <thead>
+                <tr>
+                    <th>Unit ID</th>
+                    <th>Location</th>
+                    <th>Size</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                    <th>Shared</th>
+                    <th>Open</th>
+                    <th>End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically added here -->
+            </tbody>        
+        </table>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

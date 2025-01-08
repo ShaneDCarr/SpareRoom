@@ -1,0 +1,81 @@
+  /* Admin Section */
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f6f4;
+    color: #254268;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+  .admin-section {
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-top: 2px solid #254268;
+    color: #254268;
+}
+
+.admin-section h2 {
+    font-size: 2rem;
+    color: #ce870a;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Search Filters */
+.search-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-container label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.search-container input {
+    width: 45%;
+    padding: 0.5rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Table Styling */
+.admin-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.admin-section table th,
+.admin-section table td {
+    border: 1px solid #7089bd;
+    text-align: left;
+    padding: 15px;
+}
+
+.admin-section table th {
+    background-color: #254268;
+    color: #f0f6f4;
+    font-weight: bold;
+}
+
+.admin-section table tr:nth-child(even) {
+    background-color: #f0f6f4;
+}
+
+/* Hover effect */
+.admin-section table tr:hover {
+    background-color: #e6be63;
+    color: #254268;
+}
+
+/* Responsive Table */
+@media (max-width: 1920px) {
+    .admin-section table {
+        font-size: 0.9rem;
+    }
+}

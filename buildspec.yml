@@ -1,0 +1,14 @@
+  MyApplicationBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: MyApplicationBuild
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:4.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      ServiceRole: !GetAtt CodeBuildServiceRole.Arn

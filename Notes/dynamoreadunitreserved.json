@@ -1,0 +1,37 @@
+{
+    "size": {
+      "S": "locker"
+    },
+    "location": {
+      "S": "Western Cape"
+    },
+    "information": {
+      "M": {
+        "details": {
+          "M": {
+            "end_date": {
+              "S": "2025/08/12"
+            },
+            "shared": {
+              "BOOL": false
+            },
+            "is_open": {
+              "BOOL": false
+            },
+            "renter": {
+              "S": "test@test.com"
+            },
+            "price": {
+              "N": "500"
+            }
+          }
+        },
+        "unit_state": {
+          "S": "reserved"
+        }
+      }
+    },
+    "id": {
+      "S": "0001_LOC_WC0"
+    }
+  }

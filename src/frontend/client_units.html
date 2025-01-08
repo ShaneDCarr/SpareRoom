@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SpareRoom | My Units</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="load.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    </head>
+    <div class="loading-screen" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    <body>
+        <header>
+            <div class="logo" style="cursor:pointer"><a href="home.html">SpareRoom</a></div>
+            <nav>
+                <div class="hamburger" onclick="toggleMenu()">
+                    &#9776;
+                </div>
+                <ul id="menu" class="menu">
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="rent.html">Rent</a></li>
+                    <li><a href="client_units.html">Units</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a id="logout-link" href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="container">
+            <h1>My Units</h1>
+            <div id="units-container">
+            </div>
+        </div>
+
+        <script src="fetch_units.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

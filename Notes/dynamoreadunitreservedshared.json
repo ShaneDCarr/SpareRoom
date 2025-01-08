@@ -1,0 +1,45 @@
+{
+    "size": {
+      "S": "large"
+    },
+    "location": {
+      "S": "Western Cape"
+    },
+    "information": {
+      "M": {
+        "details": {
+          "M": {
+            "end_date": {
+              "S": "indefinite"
+            },
+            "shared": {
+              "BOOL": true
+            },
+            "shared_with": {
+              "L": [
+                {
+                  "S": "test2@test.com"
+                }
+              ]
+            },
+            "is_open": {
+              "BOOL": false
+            },
+            "renter": {
+              "S": "test@test.com"
+            },
+            "price": {
+              "N": "800"
+            }
+          }
+        },
+        "unit_state": {
+          "S": "reserved"
+        }
+      }
+    },
+    "id": {
+      "S": "0001_LRG_WC0"
+    }
+  }
+  

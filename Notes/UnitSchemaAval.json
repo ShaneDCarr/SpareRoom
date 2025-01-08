@@ -1,0 +1,25 @@
+{
+  "id": {
+    "S": "0001_LRG_WC0"
+  },
+  "size": {
+    "S": "large"
+  },
+  "location": {
+    "S": "Western Cape"
+  },
+  "state": {
+    "M": {
+      "state": {
+        "S": "available"
+      },
+      "details": {
+        "M": {
+          "price": {
+            "N": "800"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,202 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #254268, #7089bd);
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.phone-container {
+    margin-bottom: 1rem;
+}
+
+.phone-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#country-code {
+    padding: 0.5rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+    width: 20%;
+}
+
+#phone {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+#country-code:focus,
+#phone:focus {
+    border-color: #e6be63;
+    box-shadow: 0 0 5px rgba(230, 190, 99, 0.5);
+}
+
+.login-container, .signup-container {
+    width: 100%;
+    max-width: 400px;
+    background: #f0f6f4;
+    border-radius: 10px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    text-align: center;
+    padding: 2rem;
+}
+
+.signup-container {
+    max-width: 600px;
+}
+
+.login-card h1, .signup-card h1 {
+    margin-bottom: 1.5rem;
+    color: #254268;
+}
+
+.input-group, .phone-container {
+    position: relative;
+    text-align: left;
+}
+
+.input-group label, .phone-container label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: #254268;
+    font-weight: 500;
+    display: block;
+}
+
+.input-group input,
+.phone-container input {
+    width: 100%;
+    padding: 0.8rem 2.5rem 0.8rem 0.8rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #e6be63;
+    box-shadow: 0 0 5px rgba(230, 190, 99, 0.5);
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    text-align: left;
+    margin: 0.5rem 0 0.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #254268;
+}
+
+form input {
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.row {
+    display: flex;
+    gap: 1rem;
+}
+
+.row .input-group {
+    flex: 1;
+}
+
+.signup-card form input,
+.signup-card form select {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #7089bd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.signup-card form input:focus,
+.signup-card form select:focus {
+    outline: none;
+    border-color: #e6be63;
+    box-shadow: 0 0 5px rgba(230, 190, 99, 0.5);
+}
+
+.input-group .icon {
+    position: absolute;
+    top: 62%;
+    right: 0.8rem;
+    transform: translateY(-50%);
+    color: #7089bd;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.input-group .icon:hover {
+    color: #e6be63;
+}
+
+.btn-primary {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #254268;
+    color: #f0f6f4;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #e6be63;
+    color: #254268;
+}
+
+p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #7089bd;
+}
+
+p a {
+    color: #254268;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9rem;
+    text-align: left;
+    display: none;
+}

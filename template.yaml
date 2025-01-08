@@ -1,0 +1,1071 @@
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  UserPoolAdminGroupName:
+    Description: User pool group name for API administrators
+    Type: String
+    Default: apiAdmins
+  UserPoolCustomerGroupName:
+    Description: User pool group name for Customers
+    Type: String
+    Default: apiCustomers
+  UserPoolDomainName:
+    Description: User pool group name for Customers
+    Type: String
+    Default: spare-room
+
+Resources:
+
+  # SpareRoomSiteBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: spare-room-site
+  #     VersioningConfiguration:
+  #       Status: Enabled
+  #     PublicAccessBlockConfiguration:
+  #       BlockPublicAcls: false
+  #       IgnorePublicAcls: false
+  #       BlockPublicPolicy: false
+  #       RestrictPublicBuckets: false
+
+  # CodeBuildProject:
+  #   Type: AWS::CodeBuild::Project
+  #   Properties:
+  #     Name: SpareRoomBuild
+  #     Artifacts:
+  #       Type: CODEPIPELINE
+  #     Environment:
+  #       Type: LINUX_CONTAINER
+  #       ComputeType: BUILD_GENERAL1_SMALL
+  #       Image: aws/codebuild/standard:4.0
+  #     Source:
+  #       Type: CODEPIPELINE
+  #       BuildSpec: buildspec.yml
+  #     ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+  #
+  # CodeBuildServiceRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: [codebuild.amazonaws.com]
+  #           Action: ['sts:AssumeRole']
+  #     Policies:
+  #       - PolicyName: CodeBuildAccess
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: Allow
+  #               Action: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", "s3:Get*", "s3:Put*", "s3:List*"]
+  #               Resource: "*"
+  #
+  # CodePipeline:
+  #   Type: AWS::CodePipeline::Pipeline
+  #   Properties:
+  #     Name: spare-room-pipeline
+  #     RoleArn: !GetAtt CodePipelineRole.Arn
+  #     ArtifactStore:
+  #       Type: S3
+  #       Location: !Ref MyBucket
+  #     Stages:
+  #       - Name: Source
+  #         Actions:
+  #           - Name: GitHubSource
+  #             ActionTypeId:
+  #               Category: Source
+  #               Owner: ThirdParty
+  #               Version: "1"
+  #               Provider: GitHub
+  #             OutputArtifacts:
+  #               - Name: SrcOutput
+  #             Configuration:
+  #               Owner: <GitHub Username>
+  #               Repo: SpareRoom
+  #               Branch: Backend
+  #               OAuthToken: !Ref GitHubOAuthToken
+  #       - Name: Build
+  #         Actions:
+  #           - Name: BuildAction
+  #             ActionTypeId:
+  #               Category: Build
+  #               Owner: AWS
+  #               Version: "1"
+  #               Provider: CodeBuild
+  #             InputArtifacts:
+  #               - Name: SrcOutput
+  #             OutputArtifacts:
+  #               - Name: BuildOutput
+  #             Configuration:
+  #               ProjectName: !Ref CodeBuildProject
+  #
+  # CodePipelineRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service: [codepipeline.amazonaws.com]
+  #           Action: ['sts:AssumeRole']
+  #     Policies:
+  #       - PolicyName: CodePipelineAccess
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: Allow
+  #               Action: "*"
+  #               Resource: "*"
+  #
+  #
+  GetClientUnits:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: GetClientUnits
+      CodeUri: src/api
+      Handler: get_client_units.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+  GetClientUnitsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetClientUnits}
+
+  RentAUnit:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: RentAUnit
+      CodeUri: src/api/
+      Handler: rent.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENT_TABLE_ARN: !GetAtt Clients.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+      Events:
+        CustomerApiPOSTrent:
+          Type: Api
+          Properties:
+            Path: /rent
+            Method: PUT
+            RestApiId: !Ref CustomerApi
+
+  RentAUnitLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RentAUnit}
+
+  GetUnits:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: GetUnits
+      CodeUri: src/api/
+      Handler: get_units.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+  GetUnitsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetUnits}
+
+  Units:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_SRP_AUTH
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: !Sub ${AWS::StackName}-UserPool
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: true
+
+  CustomerUserPoolGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: User group for Customers
+      GroupName: !Ref UserPoolCustomerGroupName
+      Precedence: 1
+      UserPoolId: !Ref UserPool
+
+  AdministratorsUserPoolGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: User group for API Administrators
+      GroupName: !Ref UserPoolAdminGroupName
+      Precedence: 0
+      UserPoolId: !Ref UserPool
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref UserPoolDomainName
+      UserPoolId: !Ref UserPool
+
+  Clients:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  NotificationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Notifications
+      AttributeDefinitions:
+        - AttributeName: unit_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: unit_id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  RelayToClientsDB:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: RelayToClientsDB
+      CodeUri: src/api/
+      Handler: relay.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Events:
+        Units:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt Units.StreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 1
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+  RelayToClientsDBLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${RelayToClientsDB}
+
+  # Api
+  CustomerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stack ${AWS::StackName}
+        - ResourceName: CustomerApi
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: LambdaTokenAuthorizer
+        Authorizers:
+          LambdaTokenAuthorizer:
+            FunctionArn: !GetAtt LogInUser.Arn
+            Identity:
+              Headers:
+                - Authorization
+      MethodSettings:
+        - ResourcePath: /*
+          LoggingLevel: INFO
+          HttpMethod: '*'
+          DataTraceEnabled: true
+      DefinitionBody:
+        openapi: '3.0'
+        info:
+          title: Customer API
+          version: 1.0.0
+        paths:
+          /rent:
+            options:
+              x-amazon-apigateway-integration:
+                type: mock
+                httpMethod: OPTIONS
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                      method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET, PUT, POST'''
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type, Authorization'''
+                      method.response.header.Access-Control-Max-Age: '''5'''
+                responseTemplates:
+                  application/json: '{}'
+              responses:
+                '200':
+                  description: CORS support
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: string
+                    Access-Control-Max-Age:
+                      schema:
+                        type: string
+              security:
+                - NONE: []
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RentAUnit.Arn}/invocations
+                credentials: !GetAtt ApiGatewayExecutionRole.Arn
+              responses: {}
+          /create_user:
+            options:
+              x-amazon-apigateway-integration:
+                httpMethod: OPTIONS
+                type: mock
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                      method.response.header.Access-Control-Allow-Methods: '''OPTIONS, GET, POST, PUT'''
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type'''
+                      method.response.header.Access-Control-Max-Age: '''5'''
+                responseTemplates:
+                  application/json: '{}'
+              responses:
+                '200':
+                  description: CORS support
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: string
+                    Access-Control-Max-Age:
+                      schema:
+                        type: string
+              security:
+                - NONE: []
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreateAccount.Arn}/invocations
+                credentials: !GetAtt ApiGatewayExecutionRole.Arn
+              responses: {}
+              security:
+                - NONE: []
+          /units:
+            options:
+              x-amazon-apigateway-integration:
+                type: mock
+                httpMethod: OPTIONS
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                      method.response.header.Access-Control-Allow-Methods: '''OPTIONS, POST, GET, PUT'''
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type, Authorization'''
+                      method.response.header.Access-Control-Max-Age: '''5'''
+                responseTemplates:
+                  application/json: '{}'
+              responses:
+                '200':
+                  description: CORS support
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: string
+                    Access-Control-Max-Age:
+                      schema:
+                        type: string
+              security:
+                - NONE: []
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUnitWrapper.Arn}/invocations
+                credentials: !GetAtt ApiGatewayExecutionRole.Arn
+              responses: {}
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutUnitWrapper.Arn}/invocations
+                credentials: !GetAtt ApiGatewayExecutionRole.Arn
+              responses: {}
+          /notifications:
+            options:
+              x-amazon-apigateway-integration:
+                type: mock
+                httpMethod: OPTIONS
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                      method.response.header.Access-Control-Allow-Methods: '''OPTIONS, POST, GET, PUT'''
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type, Authorization'''
+                      method.response.header.Access-Control-Max-Age: '''5'''
+                responseTemplates:
+                  application/json: '{}'
+              responses:
+                '200':
+                  description: CORS support
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Methods:
+                      schema:
+                        type: string
+                    Access-Control-Allow-Headers:
+                      schema:
+                        type: string
+                    Access-Control-Max-Age:
+                      schema:
+                        type: string
+              security:
+                - NONE: []
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FetchNotifications.Arn}/invocations
+              responses: {}
+      AccessLogSetting:
+        DestinationArn: !GetAtt AccessLogs.Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp",
+          "requestTime":"$context.requestTime",
+          "httpMethod":"$context.httpMethod","routeKey":"$context.routeKey",
+          "status":"$context.status","protocol":"$context.protocol",
+          "integrationStatus": $context.integrationStatus, "integrationLatency":
+          $context.integrationLatency,
+          "responseLength":"$context.responseLength" }'
+      EndpointConfiguration: REGIONAL
+      TracingEnabled: true
+      Cors:
+        MaxAge: 5
+
+  ApiGatewayExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaInvokePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource:
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:* # Allowing all for now
+
+  ApiLoggingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+  ApiGatewayAccountLoggingSettings:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiLoggingRole.Arn
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    DependsOn: ApiLoggingRole
+    Properties:
+      RetentionInDays: 30
+      LogGroupName: !Sub /${AWS::StackName}/APIAccessLogs
+
+  OpenUnit:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: OpenUnit
+      CodeUri: src/api/
+      Handler: open_unit.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+          NOTIFICATIONS_TABLE_NAME: !Ref NotificationsTable
+          NOTIFICATIONS_TABLE_ARN: !GetAtt NotificationsTable.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
+
+  OpenUnitLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${OpenUnit}
+
+  # Pretty sure that we do not need this function
+  CreateAccount:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: CreateAccountLambda
+      CodeUri: src/api/
+      Handler: user.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 300
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+          USER_POOL_CLIENT_ID: !Ref UserPoolClient
+          USER_POOL_ID: !Ref UserPool
+          DEFAULT_GROUP: !Ref UserPoolCustomerGroupName
+      Policies:
+        - arn:aws:iam::593793048052:policy/CreateUserLambda
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+      Events:
+        CustomerApiPOSTcreateuser:
+          Type: Api
+          Properties:
+            Path: /create_user
+            Method: POST
+            RestApiId: !Ref CustomerApi
+  CreateAccountLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${CreateAccount}
+
+  PyDeps:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: pyutils
+      Description: Shared dependencies for lambda functions
+      ContentUri: src/layers/python/
+      CompatibleRuntimes:
+        - python3.9
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: python3.9
+
+  # Our authorization function
+  LogInUser:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: LogInUser
+      CodeUri: src/api/
+      Handler: authorizer.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies: null
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          APP_CLIENT_ID: !Ref UserPoolClient
+          USERPOOL_ID: !Ref UserPool
+          USERPOOL_USER_POOL_ARN: !GetAtt UserPool.Arn
+          ADMIN_GROUP_NAME: !Ref UserPoolAdminGroupName
+          CUSTOMER_GROUP_NAME: !Ref UserPoolCustomerGroupName
+  LogInUserLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LogInUser}
+
+  # Our get unit wrapper
+  GetUnitWrapper:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: GetUnitWrapper
+      CodeUri: src/api
+      Handler: get_unit_wrapper.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Events:
+        CustomerApiGETunits:
+          Type: Api
+          Properties:
+            Path: /units
+            Method: GET
+            RestApiId: !Ref CustomerApi
+      Environment:
+        Variables:
+          GETUNIT_FUNCTION_NAME: !Ref GetUnit
+          GETUNIT_FUNCTION_ARN: !GetAtt GetUnit.Arn
+          GETCLIENTUNITS_FUNCTION_NAME: !Ref GetClientUnits
+          GETCLIENTUNITS_FUNCTION_ARN: !GetAtt GetClientUnits.Arn
+          GETUNITS_FUNCTION_NAME: !Ref GetUnits
+          GETUNITS_FUNCTION_ARN: !GetAtt GetUnits.Arn
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GetUnit
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GetClientUnits
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GetUnits
+  GetUnitWrapperLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetUnitWrapper}
+
+  PutUnitWrapper:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: PutUnitWrapper
+      CodeUri: src/api
+      Handler: put_unit_wrapper.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          SHAREUNIT_FUNCTION_NAME: !Ref ShareUnit
+          SHAREUNIT_FUNCTION_ARN: !GetAtt ShareUnit.Arn
+          CHANGEBILLING_FUNCTION_NAME: !Ref ChangeBilling
+          CHANGEBILLING_FUNCTION_ARN: !GetAtt ChangeBilling.Arn
+          CANCELLEASE_FUNCTION_NAME: !Ref CancelLease
+          CANCELLEASE_FUNCTION_ARN: !GetAtt CancelLease.Arn
+          EXTENDDEADLINE_FUNCTION_NAME: !Ref ExtendDeadline
+          EXTENDDEADLINE_FUNCTION_ARN: !GetAtt ExtendDeadline.Arn
+          OPENUNIT_FUNCTION_NAME: !Ref OpenUnit
+          OPENUNIT_FUNCTION_ARN: !GetAtt OpenUnit.Arn
+          STOPSHARING_FUNCTION_NAME: !Ref StopSharing
+          STOPSHARING_FUNCTION_ARN: !GetAtt StopSharing.Arn
+
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ShareUnit
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ChangeBilling
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CancelLease
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ExtendDeadline
+        - LambdaInvokePolicy:
+            FunctionName: !Ref OpenUnit
+        - LambdaInvokePolicy:
+            FunctionName: !Ref StopSharing
+      Events:
+        CustomerApiPUTunits:
+          Type: Api
+          Properties:
+            Path: /units
+            Method: PUT
+            RestApiId: !Ref CustomerApi
+  PutUnitWrapperLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${PutUnitWrapper}
+
+  GetUnit:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: GetUnit
+      CodeUri: src/api
+      Handler: get_unit.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+  GetUnitLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${GetUnit}
+
+  ShareUnit:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: ShareUnit
+      CodeUri: src/api
+      Handler: share_unit.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+          CLIENTS_TABLE_NAME: !Ref Clients
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+  ShareUnitLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ShareUnit}
+
+  ExtendDeadline:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: ExtendDeadline
+      CodeUri: src/api
+      Handler: extend.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+  ExtendDeadlineLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ExtendDeadline}
+
+  CancelLease:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: CancelLease
+      CodeUri: src/api
+      Handler: cancel.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          UNITS_TABLE_NAME: !Ref Units
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+  CancelLeaseLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${CancelLease}
+
+  ChangeBilling:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: ChangeBilling
+      CodeUri: src/api
+      Handler: change_billing.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+  ChangeBillingLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ChangeBilling}
+
+  FetchNotifications:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: FetchNotifications
+      CodeUri: src/api
+      Handler: notifications.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          NOTIFICATIONS_TABLE_NAME: !Ref NotificationsTable
+          NOTIFICATIONS_TABLE_ARN: NotificationsTable.Arn
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref NotificationsTable
+      Events:
+        CustomerApiGETnotifications:
+          Type: Api
+          Properties:
+            Path: /notifications
+            Method: GET
+            RestApiId: !Ref CustomerApi
+  FetchNotificationsLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${FetchNotifications}
+  
+  StopSharing:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: StopSharing
+      CodeUri: src/api
+      Handler: stop_sharing.lambda_handler
+      Runtime: python3.9
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Layers:
+        - !Ref PyDeps
+      Environment:
+        Variables:
+          CLIENTS_TABLE_NAME: !Ref Clients
+          CLIENTS_TABLE_ARN: !GetAtt Clients.Arn
+          UNITS_TABLE_ARN: !GetAtt Units.Arn
+          UNITS_TABLE_NAME: !Ref Units
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Clients
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Units
+
+  StopSharingLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${StopSharing}
+
+
+Outputs:
+  ClientsDB:
+    Description: Clients Database
+    Value: !Ref Clients
+
+  UnitsDB:
+    Description: Untis Database
+    Value: !Ref Units
+
+  Userpool:
+    Description: Userpool
+    Value: !Ref UserPool
+
+  UserpoolClient:
+    Description: UserpoolClient
+    Value: !Ref UserPoolClient
+
+  CustomerApi:
+    Description: CustomerApi
+    Value: !Ref CustomerApi
+
+  APIEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${CustomerApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+
+  NotificationsDB:
+    Description: Notifications
+    Value: !Ref NotificationsTable
+  # WebsiteURL:
+  #   Description: "URL of the S3 hosted website"
+  #   Value: !GetAtt
+  #     - SpareRoomSiteBucket
+  #     - WebsiteURL

@@ -1,0 +1,10 @@
+{
+    "unit_id": "unit_id",
+    "changeset": {
+        "change": "shared",
+        "open": false,
+        "shared_with": {
+            "user_id": "email"
+        }
+    }
+}

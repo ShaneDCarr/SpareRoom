@@ -1,0 +1,87 @@
+
+{
+    "Items": [
+      {
+        "phone_number": {
+          "S": "+27 000000000"
+        },
+        "location": {
+          "S": "Western Cape"
+        },
+        "last_name": {
+          "S": "Test"
+        },
+        "id": {
+          "S": "test@test.com"
+        },
+        "first_name": {
+          "S": "Test"
+        },
+        "units": {
+          "L": [
+            {
+              "M": {
+                "end_date": {
+                  "S": "2025/08/12"
+                },
+                "shared": {
+                  "BOOL": false
+                },
+                "accrued_cost": {
+                  "N": "1500"
+                },
+                "unit_id": {
+                  "S": "0001_LOC_WC0"
+                },
+                "unit_billing_option": {
+                  "S": "monthly"
+                }
+              }
+            },
+            {
+              "M": {
+                "end_date": {
+                  "S": "indefinite"
+                },
+                "shared": {
+                  "BOOL": true
+                },
+                "shared_with": {
+                  "L": [
+                    {
+                      "S": "test2@test.com"
+                    }
+                  ]
+                },
+                "accrued_cost": {
+                  "N": "2000"
+                },
+                "unit_id": {
+                  "S": "0001_LRG_WC0"
+                },
+                "unit_billing_option": {
+                  "S": "yearly"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "Count": 1,
+    "ScannedCount": 1,
+    "ResponseMetadata": {
+      "RequestId": "JGBHDFTI7JBLHIPTMK0UF4ICJFVV4KQNSO5AEMVJF66Q9ASUAAJG",
+      "HTTPStatusCode": 200,
+      "HTTPHeaders": {
+        "server": "Server",
+        "date": "Thu, 05 Dec 2024 12:52:56 GMT",
+        "content-type": "application/x-amz-json-1.0",
+        "content-length": "564",
+        "connection": "keep-alive",
+        "x-amzn-requestid": "JGBHDFTI7JBLHIPTMK0UF4ICJFVV4KQNSO5AEMVJF66Q9ASUAAJG",
+        "x-amz-crc32": "4083836807"
+      },
+      "RetryAttempts": 0
+    }
+  }

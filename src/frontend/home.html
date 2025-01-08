@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SpareRoom | Home</title>
+        <link rel="stylesheet" href="styles.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="logo" style="cursor:pointer"><a href="home.html">SpareRoom</a></div>
+            <nav>
+                <div class="hamburger" onclick="toggleMenu()">
+                    &#9776;
+                </div>
+                <ul id="menu" class="menu">
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="rent.html">Rent</a></li>
+                    <li><a href="client_units.html">Units</a></li>
+                    <li><a href="support.html">Support</a></li>
+                    <li><a id="logout-link" href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="intro">
+            <div class="intro-content">
+                <h1>Welcome to SpareRoom</h1>
+                <p>Your trusted partner for secure, flexible, and convenient self-storage solutions.</p>
+                <a href="rent.html" class="btn-primary">Rent a Unit</a>
+            </div>
+        </section>
+
+        <section class="about">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>
+                        At SpareRoom, we provide next-generation self-storage solutions designed to fit your lifestyle. With flexible booking options, state-of-art security, and no pesky humans in the loop. Making storing your belongings seamless and stress-free.
+                    </p>
+                    <p>
+                        Our facilities are conveniently located in multiple provinces, offering a variety of unit sizes from lockers to garage-sized spaces. Whether you're moving decluttering, or need extra room for your business, we've got the perfect space for you.
+                    </p>
+                </div>
+                <div class="about-images">
+                    <img src="https://images.unsplash.com/photo-1557761469-f29c6e201784?q=80&w=2049&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Our Storage Facility" class="about-img">
+                    <img src="https://images.unsplash.com/photo-1534157327728-accacabda257?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Security Camera" class="about-img">
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>Why Choose Us?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <h3>Flexible Rentals</h3>
+                    <p>Rent for as little as one day or as long as you need. Your schedule, your terms.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Smart Access</h3>
+                    <p>Unlock your unit using our app, and share access securely with others.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>24/7 Security</h3>
+                    <p>State-of-the-art surveillance and smart notifications ensure your belongings are always safe.</p>
+                </div>
+            </div>
+        </section>
+
+        <script src="script.js"></script>
+    </body>
+</html>

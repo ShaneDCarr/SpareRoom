@@ -1,0 +1,10 @@
+{
+    "user": {
+        "name": "Name",
+        "surname": "Surname",
+        "email": "email@email.com",
+        "password": "passwordhash",
+        "location": "location",
+        "phone_number": "0123456789"
+    }
+}
