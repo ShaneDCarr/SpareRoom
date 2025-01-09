@@ -9,9 +9,6 @@ Users can rent storage units, browse available spaces, and manage their renting 
   - [Screenshots](#screenshots)
 - [Technologies Used](#technologies-used)
 - [Installation Guide](#installation-guide)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [License](#license)
 
 ## Backend Architecture
 
