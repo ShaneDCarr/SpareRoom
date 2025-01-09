@@ -31,16 +31,23 @@ The frontend is designed with a user-friendly interface that lets customers brow
 ### Screenshots:
 
 #### Home Page
-![Home Page](link-to-your-image.png) <!-- Replace with a screenshot of the homepage -->
+![Home Page](Screenshots/HomePage.png) <!-- Replace with a screenshot of the homepage -->
 
-#### Browse Storage
-![Browse Storage](link-to-your-image.png) <!-- Replace with a screenshot of the browsing page -->
+#### Storage Units Rented by Current User
+![RentedUnits](Screenshots/RentedUnits.png) <!-- Replace with a screenshot of the browsing page -->
 
-#### User Profile
-![User Profile](link-to-your-image.png) <!-- Replace with a screenshot of the user profile page -->
+#### Unit Details
+![Unit Details](Screenshots/UnitDetails.png) <!-- Replace with a screenshot of the user profile page -->
 
-#### Checkout Process
-![Checkout](link-to-your-image.png) <!-- Replace with a screenshot of the checkout page -->
+#### Notifications Page
+![Notifications Page](Screenshots/NotificationsPage.png) <!-- Replace with a screenshot of the user profile page -->
+
+#### Search Available Units
+![Search Available Units](Screenshots/SearchAvailableUnits.png) <!-- Replace with a screenshot of the checkout page -->
+
+#### Search Result of Available Units
+![Search Result of Available Units](Screenshots/SearchAvailableUnits.png)
+
 
 ## Technologies Used
 
