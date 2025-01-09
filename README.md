@@ -52,38 +52,64 @@ The frontend is designed with a user-friendly interface that lets customers brow
 ## Technologies Used
 
 - **Backend**:
-  - Node.js, Express
-  - Microservices (Docker, Kubernetes)
-  - Kafka (for event bus)
-  - MongoDB (for data storage)
-  - Redis (for caching)
+  - REST API (AWS API Gateway)
+  - Microservices (AWS Lambda)
+  - AWS DynamoDB (for non-relational data storage)
+  - AWS CloudFront (for caching)
   - JWT (for user authentication)
 
 - **Frontend**:
-  - React.js
-  - Material UI (for UI components)
-  - Axios (for API calls)
-  - React Router (for navigation)
-  - Redux (for state management)
+  - HTML & CSS (for UI)
+  - Java Script (for frontend logic)
 
 - **DevOps**:
-  - Docker (for containerization)
-  - Kubernetes (for orchestration)
-  - GitHub Actions (for CI/CD)
+  - AWS SAM (for Infrastructure as Code)
 
 ## Installation Guide
 
 To run the project locally, follow the steps below.
 
 ### Prerequisites:
-- Node.js (v14 or higher)
-- Docker
-- MongoDB
-- Kafka (for event-driven architecture)
+- AWS SAM CLI
+- AWS Account
 
 ### Step 1: Clone the repository
 
 ```bash
-git clone https://github.com/your-username/storage-renting-site.git
-cd storage-renting-site
+git clone https://github.com/ShaneDCarr/SpareRoom.git
+cd SpareRoom
+```
 
+### Step 2: Install requirements
+
+```bash
+pip intall -r requirements.txt
+```
+
+### Step 3: Initialise the build
+
+```bash
+sam build
+```
+
+
+### Step 4: Intialise the Deployment
+
+```bash
+sam deploy --guided
+```
+
+### Step 5: Fill The Bucket
+
+```
+    - Go to your stack on cloud formation
+    - In your Outputs, you will find a link to your S3 bucket
+    - Upload everyting in the src/frontend folder to your bucket
+```
+
+### Step 6: Visit your website
+
+```
+    - Go to your stack on cloud formation
+    - In your Outputs, you will find a link to the site hosted on your S3 bucket
+```
